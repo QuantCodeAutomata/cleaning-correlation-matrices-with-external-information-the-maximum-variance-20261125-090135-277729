@@ -201,3 +201,24 @@ The cause of the ranking reversal at `eta'=1/100` remains unidentified.
   negative value against. The underlying claim — that the empirical
   estimator performs poorly at this decay rate — is consistent with the
   sign obtained, but the exact entry is not reproduced.
+- The paper's qualitative claim that "the advantage of the MaxVar
+  estimator over the RIE should increase when the estimation window is
+  shortened" (Section 3, Table 3: MaxVar 1.05 vs. RIE 0.93 at
+  `eta'=1/100`) is not reproduced: this run gets RIE (1.201) above MaxVar
+  (0.892) at `eta'=1/100`, i.e. the ranking is reversed, while the ranking
+  MaxVar > RIE > Empirical is reproduced at `eta'=1/750`. Three checks were
+  run to localize the cause without finding one: (i) a Marcenko-Pastur
+  `q_group = n_group/T` comparison of the reduced 9-instrument bond group
+  against the paper's 14-instrument group at `eta'=1/100`, which moves in
+  the direction of *less* noise for the reduced group and therefore does
+  not explain a reversal that favors RIE; (ii) a sub-period split of the
+  1993-2018 out-of-sample window at the point where `BNDX` (the ex-US
+  treasury proxy forced into the bond group by the 47-to-42 universe
+  reduction above) starts trading in 2013, which shows the reversal is not
+  confined to one sub-period; (iii) a check that `rie_correlation`'s
+  effective sample size (`n_observations`, `src/rie.py`) is computed from
+  the already day-to-week-converted `eta'` in `src/config.py`
+  (`ETA_CORR_SLOW=1/150`, `ETA_CORR_FAST=1/20`), which is correct and
+  matches the paper's "about 150" / "about 20" weekly returns exactly. No
+  further full run of this experiment was carried out, so the cause of the
+  reversal was not identified.

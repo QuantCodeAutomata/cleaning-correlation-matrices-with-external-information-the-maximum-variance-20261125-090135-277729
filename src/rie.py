@@ -2,14 +2,13 @@
 the paper as the main noise-cleaning benchmark against the MaxVar estimator
 (paper, Section 3: "the RIE of Bun et al. (2016, 2017)").
 
-Context7 was queried for a library implementation (skfolio's covariance
-estimators: ``DenoiseCovariance``/``DetoneCovariance`` implement Laloux et
-al. eigenvalue *clipping* with a constant residual eigenvalue, not the
-optimal nonlinear-shrinkage formula of Bun et al.; no installed package
-implements the Bun-Bouchaud-Potters RIE), so the estimator is implemented
-directly from Bun, Bouchaud & Potters (2017), "Cleaning large correlation
-matrices: tools from random matrix theory", Physics Reports 666 ("BBP17"),
-Sections 2 and 4.
+skfolio's covariance estimators ``DenoiseCovariance``/``DetoneCovariance``
+implement Laloux et al. eigenvalue *clipping* with a constant residual
+eigenvalue, not the optimal nonlinear-shrinkage formula of Bun et al., and
+no installed package implements the Bun-Bouchaud-Potters RIE, so the
+estimator is implemented directly from Bun, Bouchaud & Potters (2017),
+"Cleaning large correlation matrices: tools from random matrix theory",
+Physics Reports 666 ("BBP17"), Sections 2 and 4.
 
 The optimal rotationally-invariant shrinkage of a sample eigenvalue lambda
 is (BBP17 Eq. 2.11, written with q = N/T):

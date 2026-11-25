@@ -2,11 +2,10 @@
 
 Custom implementation of the MaxVar estimator described in the paper
 "Cleaning correlation matrices with external information: the Maximum
-Variance estimator" (Section 2). No library in the environment implements
-this estimator (Context7 was queried for skfolio's covariance-denoising
-estimators, which only provide Marchenko-Pastur eigenvalue clipping /
-detoning, not a group-constrained maximum-variance completion), so the four
-steps of Section 2 are implemented directly from the paper's equations.
+Variance estimator" (Section 2). skfolio's covariance-denoising estimators
+only provide Marchenko-Pastur eigenvalue clipping / detoning, not a
+group-constrained maximum-variance completion, so the four steps of
+Section 2 are implemented directly from the paper's equations.
 
 Steps (paper, Section 2):
   (a) for each group G_k, p_k is the leading eigenvector of the restriction

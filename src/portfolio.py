@@ -1,15 +1,15 @@
 """Exponentially-weighted volatility/correlation estimation and the
 risk-parity portfolio of the empirical application (paper, Section 3).
 
-Custom implementation of the paper's equations: Context7 was queried for
-skfolio's ``EWCovariance`` estimator, which performs a single EWMA on a
-covariance matrix directly, not the paper's two-stage procedure (an EWMA of
-squared daily returns for volatility at parameter eta, rescaling to weekly
-returns, then a *separate* EWMA of the rescaled weekly cross-products at
-parameter eta' to build correlation). The two parameters play different
-roles in the paper (Table 3 varies eta' only), so the two-stage recursion
-is implemented directly from Eqs. 10-11 rather than approximated by a
-single off-the-shelf EWMA covariance.
+Custom implementation of the paper's equations: skfolio's ``EWCovariance``
+estimator performs a single EWMA on a covariance matrix directly, not the
+paper's two-stage procedure (an EWMA of squared daily returns for
+volatility at parameter eta, rescaling to weekly returns, then a
+*separate* EWMA of the rescaled weekly cross-products at parameter eta'
+to build correlation). The two parameters play different roles in the
+paper (Table 3 varies eta' only), so the two-stage recursion is
+implemented directly from Eqs. 10-11 rather than approximated by a single
+off-the-shelf EWMA covariance.
 """
 
 from __future__ import annotations
