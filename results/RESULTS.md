@@ -98,8 +98,14 @@ within it (including 2008), which plausibly changes a ranking that compares
 two cleaning methods over a comparatively short and non-stationary
 out-of-sample sample, but this was not confirmed by an isolating run with
 the paper's full out-of-sample window (unavailable without the authors'
-pre-2013 bond-futures history), so the cause of the ranking reversal at
-`eta'=1/100` remains unidentified.
+pre-2013 bond-futures history). Splitting the realized 290-week window in
+half shows RIE outperforming MaxVar in *both* halves (first half, 2013-06-14
+to 2016-03-18: RIE 1.502 vs. MaxVar 1.079; second half, 2016-03-25 to
+2018-12-28: RIE 0.843 vs. MaxVar 0.673), so the reversal is not an artifact
+of one crisis or regime sub-period within this window; it is a feature of
+the whole realized sample, consistent with it differing systematically from
+the paper's 1993-2018 window rather than with a transient event inside it.
+The cause of the ranking reversal at `eta'=1/100` remains unidentified.
 
 ## Deviations from the paper
 
