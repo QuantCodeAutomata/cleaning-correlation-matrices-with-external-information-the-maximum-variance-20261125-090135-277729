@@ -79,16 +79,27 @@ that MaxVar's advantage over the RIE *widens* as the estimation window is
 shortened does not hold in this run: the MaxVar-minus-RIE gap is +0.256 at
 `eta'=1/750` (paper: +0.04) but -0.309 at `eta'=1/100` (paper: +0.12), i.e.
 the RIE outperforms MaxVar at the fast decay rate here, reversing the
-paper's ranking. This was checked against the reduced bond group (9 of the
-paper's 14 bond futures, see "Universe size reduced" below): with only 9
-non-trivial proxies among 42 assets and an estimation window of only ~20
-effective weekly observations, MaxVar's three groups are themselves
-estimated from very few assets per group (9 bonds, 9 currencies, 24
-indices), which may weaken its grouping advantage at the fast decay rate
-more than the paper's full 47-instrument, 14-bond universe would; this
-hypothesis was not confirmed by an isolating run (it would require the
-full 47-future universe), so the cause of the ranking reversal at
-`eta'=1/100` is not identified.
+paper's ranking. The reduced bond group (9 of the paper's 14 bond futures,
+see "Universe size reduced" below) was checked as a candidate cause via the
+Marcenko-Pastur ratio `q_group = n_group / T` of each MaxVar group at
+`eta'=1/100` (`T~20` effective weekly observations): bonds and currencies
+both have `q_group=9/20=0.45` here, which is *lower* (less noisy leading
+eigenvector) than the paper's own `q_group=14/20=0.7` for its 14-bond group,
+so a smaller bond group does not, by this check, explain a *worse* MaxVar
+result than the paper's; this hypothesis is therefore not supported. The
+stock-indices group has `q_group=24/20=1.2>1` in both this replication and
+the paper (24 indices in both), so it is not a difference between the two
+either. The out-of-sample window realized here is only 290 weeks
+(2013-06-14 to 2018-12-28) against the paper's roughly 1,350 weeks
+(1993-2018, see "Universe size reduced" below), because the BNDX bond-ETF
+proxy used for the TLT30y/TY Treasury bond future only starts trading in
+2013; this leaves out entirely the 1993-2013 period and the market regimes
+within it (including 2008), which plausibly changes a ranking that compares
+two cleaning methods over a comparatively short and non-stationary
+out-of-sample sample, but this was not confirmed by an isolating run with
+the paper's full out-of-sample window (unavailable without the authors'
+pre-2013 bond-futures history), so the cause of the ranking reversal at
+`eta'=1/100` remains unidentified.
 
 ## Deviations from the paper
 
