@@ -41,7 +41,7 @@ def build_reference_matrix(use_cache: bool = True) -> tuple[np.ndarray, list[str
         invert=config.CURRENCY_INVERT, use_cache=use_cache,
     )
     prices = prices.reindex(columns=tickers)
-    returns = prices.pct_change().iloc[1:]
+    returns = prices.pct_change(fill_method=None).iloc[1:]
 
     volatility = ema_volatility(returns, config.ETA_VOL)
     rescaled = rescale_by_volatility(returns, volatility)

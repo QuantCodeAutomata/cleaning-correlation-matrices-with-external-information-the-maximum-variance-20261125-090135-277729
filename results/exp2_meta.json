@@ -1,0 +1,84 @@
+{
+  "n_tickers": 42,
+  "oos_start_paper": "1993-01-01",
+  "oos_end_paper": "2018-12-31",
+  "non_massive_source": {
+    "BWX": "yahoo",
+    "DIA": "yahoo",
+    "DXJ": "yahoo",
+    "EDV": "yahoo",
+    "EEM": "yahoo",
+    "EFA": "yahoo",
+    "EWA": "yahoo",
+    "EWC": "yahoo",
+    "EWG": "yahoo",
+    "EWH": "yahoo",
+    "EWI": "yahoo",
+    "EWJ": "yahoo",
+    "EWN": "yahoo",
+    "EWP": "yahoo",
+    "EWQ": "yahoo",
+    "EWS": "yahoo",
+    "EWT": "yahoo",
+    "EWU": "yahoo",
+    "EWY": "yahoo",
+    "EZU": "yahoo",
+    "IEF": "yahoo",
+    "IEI": "yahoo",
+    "IEV": "yahoo",
+    "IGOV": "yahoo",
+    "INDA": "yahoo",
+    "ISHG": "yahoo",
+    "IWM": "yahoo",
+    "MDY": "yahoo",
+    "QQQ": "yahoo",
+    "SHY": "yahoo",
+    "SPY": "yahoo",
+    "TLT": "yahoo",
+    "UUP": "yahoo"
+  },
+  "failed_tickers": {},
+  "realized_weekly_return_coverage": {
+    "slow (eta'=1/750)": {
+      "empirical": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      },
+      "rie": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      },
+      "maxvar": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      }
+    },
+    "fast (eta'=1/100)": {
+      "empirical": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      },
+      "rie": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      },
+      "maxvar": {
+        "n_weeks_used": 290,
+        "first_week_used": "2013-06-14 00:00:00",
+        "last_week_used": "2018-12-28 00:00:00"
+      }
+    }
+  },
+  "active_ticker_count_in_oos_window": {
+    "min": 1,
+    "median": 25.0,
+    "max": 42,
+    "total_tickers": 42
+  },
+  "first_date_all_tickers_active": "2013-06-07 00:00:00"
+}

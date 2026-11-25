@@ -112,9 +112,22 @@ OOS_END_PAPER = "2018-12-31"  # paper: end of the out-of-sample Sharpe-ratio win
 # ---------------------------------------------------------------------------
 # Exponential moving average parameters (paper, Eqs. 10-11 and Section 3)
 # ---------------------------------------------------------------------------
-ETA_VOL = 1.0 / 100.0  # paper Section 3: EMA parameter for daily volatility (eta)
-ETA_CORR_SLOW = 1.0 / 750.0  # paper Section 3 / Table 1: eta' ~ 150 weekly returns
-ETA_CORR_FAST = 1.0 / 100.0  # paper Section 3 / Table 3: eta' ~ 20 weekly returns
+ETA_VOL = 1.0 / 100.0  # paper Eq. 10: EMA parameter for daily volatility (eta), applied to daily returns
+
+# Paper, Section 3 (between Eqs. 11 and 12): "With eta' = 1/750 in units of
+# days, the estimation window contains about 150 independent weekly returns
+# for 47 contracts." The correlation EMA of Eq. 11 is a recursion over
+# *weekly* returns, so the day-unit label eta'=1/750 is not applied literally
+# to that weekly recursion; it is converted to a weekly decay parameter by
+# the number of trading days per week (5 trading days/week): 750 days / 5 =
+# 150 weeks, i.e. eta'_weekly = 5/750 = 1/150. Likewise eta'=1/100 in day
+# units (Table 3, "shortened to eta'=1/100, i.e. about 20 weekly returns")
+# converts to eta'_weekly = 5/100 = 1/20.
+TRADING_DAYS_PER_WEEK = 5  # unit conversion, paper Section 3 (day-unit eta' -> weekly eta')
+ETA_CORR_SLOW_DAYUNITS = 1.0 / 750.0  # paper Section 3 / Table 1: eta' quoted in units of days
+ETA_CORR_FAST_DAYUNITS = 1.0 / 100.0  # paper Section 3 / Table 3: eta' quoted in units of days
+ETA_CORR_SLOW = TRADING_DAYS_PER_WEEK * ETA_CORR_SLOW_DAYUNITS  # = 1/150: weekly decay for Eq. 11
+ETA_CORR_FAST = TRADING_DAYS_PER_WEEK * ETA_CORR_FAST_DAYUNITS  # = 1/20: weekly decay for Eq. 11
 
 # ---------------------------------------------------------------------------
 # Experiment 1: Monte Carlo noise-reduction test (paper Section 3, Table 1)

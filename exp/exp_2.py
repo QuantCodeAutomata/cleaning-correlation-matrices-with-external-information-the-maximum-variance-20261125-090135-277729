@@ -45,7 +45,7 @@ def load_returns(use_cache: bool = True) -> tuple[pd.DataFrame, dict]:
         invert=config.CURRENCY_INVERT, use_cache=use_cache,
     )
     prices = prices.reindex(columns=tickers)
-    returns = prices.pct_change().iloc[1:]
+    returns = prices.pct_change(fill_method=None).iloc[1:]
     return returns, meta
 
 
@@ -106,6 +106,7 @@ def run_for_eta(
         "maxvar": lambda c: maxvar_correlation(c, groups),
     }
     sharpe = {}
+    coverage = {}
     for name, clean_fn in estimators.items():
         port_returns = portfolio_returns_for_estimator(
             weekly_vol, weekly_raw_returns, corr_series, clean_fn, groups, mask
@@ -115,7 +116,12 @@ def run_for_eta(
             sharpe[name] = None
         else:
             sharpe[name] = annualized_sharpe_ratio(oos_returns.to_numpy(), config.WEEKS_PER_YEAR)
-    return sharpe
+        coverage[name] = {
+            "n_weeks_used": int(len(oos_returns)),
+            "first_week_used": str(oos_returns.index.min()) if len(oos_returns) else None,
+            "last_week_used": str(oos_returns.index.max()) if len(oos_returns) else None,
+        }
+    return sharpe, coverage
 
 
 def main(use_cache: bool = True) -> pd.DataFrame:
@@ -124,28 +130,57 @@ def main(use_cache: bool = True) -> pd.DataFrame:
     mask = include_mask(config.RISK_PARITY_INCLUDE_GROUPS)
 
     rows = []
+    coverage_by_label = {}
     for label, eta_prime, expected in (
         ("slow (eta'=1/750)", config.ETA_CORR_SLOW, config.EXPECTED_SHARPE_ETA_SLOW),
         ("fast (eta'=1/100)", config.ETA_CORR_FAST, config.EXPECTED_SHARPE_ETA_FAST),
     ):
-        sharpe = run_for_eta(eta_prime, returns, groups, mask)
+        sharpe, coverage = run_for_eta(eta_prime, returns, groups, mask)
+        coverage_by_label[label] = coverage
         for method in ("empirical", "rie", "maxvar"):
             rows.append({
                 "eta_prime_label": label,
                 "method": method,
                 "sharpe_ratio": sharpe[method],
                 "paper_table3_value": expected[method],
+                "n_weeks_used": coverage[method]["n_weeks_used"],
+                "first_week_used": coverage[method]["first_week_used"],
+                "last_week_used": coverage[method]["last_week_used"],
             })
 
     results = pd.DataFrame(rows)
     results.to_csv("results/exp2_sharpe_ratios.csv", index=False)
+
+    # Diagnostic: how many of the 42 proxy tickers have a simultaneously
+    # finite weekly return/volatility in each calendar year of the paper's
+    # nominal out-of-sample window (paper Section 3: 1 Jan 1993-31 Dec 2018).
+    # The risk-parity weights and the MaxVar/RIE cleaning at date t require
+    # every ticker's weekly volatility to be finite, so a week is usable only
+    # once all 42 proxies have started trading.
+    volatility = ema_volatility(returns, config.ETA_VOL)
+    weekly_vol = to_weekly(volatility, how="last")
+    active_counts = weekly_vol.notna().sum(axis=1)
+    oos_mask = (weekly_vol.index >= pd.Timestamp(config.OOS_START_PAPER)) & (
+        weekly_vol.index <= pd.Timestamp(config.OOS_END_PAPER)
+    )
+    active_in_oos = active_counts.loc[oos_mask]
+    first_full_universe = active_counts[active_counts == weekly_vol.shape[1]].index.min()
+
     with open("results/exp2_meta.json", "w") as f:
         json.dump({
             "n_tickers": len(ordered_tickers()),
-            "oos_start": config.OOS_START_PAPER,
-            "oos_end": config.OOS_END_PAPER,
+            "oos_start_paper": config.OOS_START_PAPER,
+            "oos_end_paper": config.OOS_END_PAPER,
             "non_massive_source": meta.get("non_massive_source", {}),
             "failed_tickers": meta.get("failed", {}),
+            "realized_weekly_return_coverage": coverage_by_label,
+            "active_ticker_count_in_oos_window": {
+                "min": int(active_in_oos.min()),
+                "median": float(active_in_oos.median()),
+                "max": int(active_in_oos.max()),
+                "total_tickers": int(weekly_vol.shape[1]),
+            },
+            "first_date_all_tickers_active": str(first_full_universe),
         }, f, indent=2, default=str)
 
     fig, ax = plt.subplots(figsize=(7, 4))
