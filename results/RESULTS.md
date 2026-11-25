@@ -56,27 +56,39 @@ Source files: `exp/exp_2.py`, `src/maxvar.py`, `src/rie.py`,
 | 1/750 (slow)| RIE       | 0.888                     | 1.24            | -28.4%                | partially reproduced |
 | 1/750 (slow)| MaxVar    | 1.144                     | 1.28            | -10.6%                | partially reproduced |
 | 1/100 (fast)| Empirical | -0.234                    | not reported    | n/a                   | not reproduced |
-| 1/100 (fast)| RIE       | -0.100                    | 0.93            | opposite sign          | not reproduced |
+| 1/100 (fast)| RIE       | 1.201                     | 0.93            | +29.1%                 | partially reproduced |
 | 1/100 (fast)| MaxVar    | 0.892                     | 1.05            | -15.0%                 | partially reproduced |
 
-Both estimators retain the same sign (annualized Sharpe ratio, positive
-excess risk-adjusted return) in the slow case, and MaxVar remains the best
-performer at both decay rates, consistent with the paper's central claim
-that MaxVar outperforms the RIE and that its relative advantage widens as
-the estimation window is shortened: the MaxVar-minus-RIE gap widens from
-+0.256 (slow) to +0.992 (fast) here, versus the paper's +0.04 (slow,
-1.28-1.24) to +0.12 (fast, 1.05-0.93). At `eta'=1/100` the empirical matrix produces a
-negative Sharpe ratio rather than the paper's unreported ("–") entry; this
-is consistent with the paper's implication that the empirical estimator is
-unusable at this decay rate (Table 3 reports no value, plausibly because the
-matrix is ill-conditioned with ~20 weekly observations for 42-47 assets),
+At `eta'=1/750` both estimators retain the same sign (annualized Sharpe
+ratio, positive excess risk-adjusted return) and MaxVar remains the best
+performer, consistent with the paper's claim that MaxVar outperforms the
+RIE. At `eta'=1/100` the empirical matrix produces a negative Sharpe ratio
+rather than the paper's unreported ("–") entry; this is consistent with the
+paper's implication that the empirical estimator is unusable at this decay
+rate (Table 3 reports no value, plausibly because the matrix is
+ill-conditioned with ~20 effective weekly observations for 42-47 assets),
 but there is no paper number to validate the specific figure against, so it
-is marked "not reproduced" rather than compared quantitatively. The RIE
-Sharpe ratio at `eta'=1/100` has the opposite sign from the paper (-0.100
-vs. +0.93); the identified cause is the much shorter realized out-of-sample
-window (see below), which was checked by reducing it below the paper's 26
-years, but the remaining magnitude of this particular discrepancy was not
-further isolated beyond that sample-length effect.
+is marked "not reproduced". The RIE's bulk-eigenvalue noise variance
+(`sigma^2` in `src/rie.py`) is calibrated from the mean of the bulk
+eigenvalues rather than fixed at 1, and the `q = N/T > 1` point mass at zero
+(BBP17 Sec. 4) is excluded from that calibration (`src/rie.py`); with this
+fix the RIE's Sharpe ratio at `eta'=1/100` is positive and the same sign as
+the paper (+1.201 vs. +0.93, +29.1%), unlike a constant-`sigma^2=1`
+calibration, which produced a spurious sign flip. However, the paper's claim
+that MaxVar's advantage over the RIE *widens* as the estimation window is
+shortened does not hold in this run: the MaxVar-minus-RIE gap is +0.256 at
+`eta'=1/750` (paper: +0.04) but -0.309 at `eta'=1/100` (paper: +0.12), i.e.
+the RIE outperforms MaxVar at the fast decay rate here, reversing the
+paper's ranking. This was checked against the reduced bond group (9 of the
+paper's 14 bond futures, see "Universe size reduced" below): with only 9
+non-trivial proxies among 42 assets and an estimation window of only ~20
+effective weekly observations, MaxVar's three groups are themselves
+estimated from very few assets per group (9 bonds, 9 currencies, 24
+indices), which may weaken its grouping advantage at the fast decay rate
+more than the paper's full 47-instrument, 14-bond universe would; this
+hypothesis was not confirmed by an isolating run (it would require the
+full 47-future universe), so the cause of the ranking reversal at
+`eta'=1/100` is not identified.
 
 ## Deviations from the paper
 

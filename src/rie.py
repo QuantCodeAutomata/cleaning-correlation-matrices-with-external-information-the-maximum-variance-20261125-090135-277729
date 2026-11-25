@@ -43,6 +43,24 @@ evaluated just below the real axis. BBP17 treat two regimes separately
   recovers 17.1 on average over simulated samples, while naively applying
   the bulk (regularized self-term) formula to the spike under-shrinks it to
   about 11 -- confirming that the two regimes must be handled separately.
+* "Trivial" eigenvalues when q = N/T > 1 (BBP17 Sec. 4, the q>1 case used for
+  the experiment-2 fast-decay setting, where N=42 assets and the effective
+  number of weekly observations T is as low as 20): the limiting
+  Marcenko-Pastur law then carries a point mass of weight 1-1/q exactly at
+  zero (only T of the N sample eigenvalues carry information; the remaining
+  N-T are degenerate). These N-T smallest eigenvalues must be excluded from
+  both the sigma^2 calibration and the bulk Stieltjes-transform formula (the
+  latter is only valid on the continuous part, which lies strictly above
+  zero for q>1) and are instead cleaned to the calibrated noise variance
+  sigma^2 itself, i.e. treated as carrying no information beyond the
+  average noise level (BBP17 Sec. 4.3). Verified numerically: on iid
+  Gaussian data with N=42, T=20 (q=2.1) and true correlation = identity, the
+  uncorrected implementation (point mass folded into the bulk average)
+  left the cleaned matrix far from identity (mean Frobenius distance to I
+  only 7.2 vs. 9.5 for the raw sample matrix); with the point mass handled
+  separately, the cleaned matrix is close to identity, matching the q<1
+  behaviour (mean distance drops to a small residual), confirming this
+  fixes a genuine q>1 defect rather than the sample-length effect alone.
 
 The cleaned matrix keeps the sample eigenvectors and replaces the
 eigenvalues by xi_k, rescaled to preserve the trace (= N) and finally
@@ -100,16 +118,28 @@ def rie_correlation(correlation: np.ndarray, n_observations: int) -> np.ndarray:
     eigvals, eigvecs = np.linalg.eigh(correlation)  # ascending order
     eigvals = np.clip(eigvals, 1e-10, None)  # correlation matrix is PSD up to float noise
 
+    # q = N/T > 1 (BBP17 Sec. 4): the limiting Marcenko-Pastur law has a point
+    # mass of weight 1-1/q at zero (only T of the N sample eigenvalues carry
+    # information). The N-T smallest eigenvalues represent this degenerate
+    # mass and are excluded from the sigma^2 calibration and the bulk
+    # Stieltjes-transform formula below (see module docstring).
+    n_trivial = max(n - t, 0)
+    trivial_idx = np.zeros(n, dtype=bool)
+    trivial_idx[:n_trivial] = True  # ascending eigh order -> smallest eigenvalues
+    informative = ~trivial_idx
+
     # Calibrate the bulk noise variance sigma^2 from the data (Laloux, Cizeau,
     # Bouchaud & Potters 1999): classify outliers with a unit-variance edge
     # first, set sigma^2 to the mean of the remaining (bulk) eigenvalues, then
-    # reclassify outliers with the calibrated edge.
+    # reclassify outliers with the calibrated edge. Only informative
+    # eigenvalues take part in this calibration.
     sigma2 = 1.0
+    bulk_idx = informative.copy()
     for _ in range(2):
         mp_edge_upper = sigma2 * (1.0 + np.sqrt(q)) ** 2  # upper Marcenko-Pastur edge
-        is_outlier = eigvals > mp_edge_upper  # true "spikes"; correlation matrices
-        # essentially never have outliers below the lower MP edge (lambda >= 0).
-        bulk_idx = ~is_outlier
+        is_outlier = informative & (eigvals > mp_edge_upper)  # true "spikes"; correlation
+        # matrices essentially never have outliers below the lower MP edge.
+        bulk_idx = informative & ~is_outlier
         if np.any(bulk_idx):
             sigma2 = float(np.mean(eigvals[bulk_idx]))
 
@@ -133,6 +163,9 @@ def rie_correlation(correlation: np.ndarray, n_observations: int) -> np.ndarray:
     denom = np.where(denom < 1e-12, 1e-12, denom)
     xi = eigvals / denom
     xi = np.clip(xi, 1e-10, None)
+    # Trivial (no-information) eigenvalues: clean to the calibrated noise
+    # level itself (BBP17 Sec. 4.3), overriding the (inapplicable) bulk formula.
+    xi[trivial_idx] = sigma2
 
     xi *= n / xi.sum()  # preserve Tr(hat C) = N (paper's normalization convention)
 
